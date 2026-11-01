@@ -36,3 +36,24 @@ Rövid leírások olyan hibákról, amikből tanultam. Formátum: mi történt, 
 - **Ok:** a sima `apt upgrade` visszatartja azokat a csomagokat, amelyek új függőséget hoznak, így a szerver régi maradt, a web felület frissült.
 - **Megoldás:** `apt full-upgrade`, előtte mentés.
 - **Tanulság:** a csomagkezelő kimenetét („kept back”) el kell olvasni, nem csak lefuttatni a parancsot.
+
+## 6. „websocket: bad handshake” az SSH-nál
+
+- **Mi történt:** a tunnelen át beállított SSH kapcsolat nem jött létre, a kliens `websocket: bad handshake` hibát adott.
+- **Ok:** a tunnel konténerben a `cloudflared` kézzel telepített bináris volt `--no-autoupdate` kapcsolóval, és hónapok óta nem frissült. Az új kliens és a régi szerveroldal nem értette egymást.
+- **Megoldás:** a bináris frissítése a legújabb kiadásra (a régit félretettem visszalépéshez), szolgáltatás újraindítása.
+- **Tanulság:** ami nem csomagkezelőből jön, azt semmi nem frissíti magától. Ezeket külön listán kell tartani.
+
+## 7. Az új konténerben nem működött az apt
+
+- **Mi történt:** egy frissen létrehozott konténerben az `apt update` nem tudta feloldani a szerverneveket.
+- **Ok:** a konténer a hosttól örökölte a DNS beállítást, ami a Tailscale miatt a `100.100.100.100` címre mutatott, és ez a konténerből nem érhető el.
+- **Megoldás:** `pct set <ID> --nameserver "<router> 1.1.1.1" --searchdomain lan`.
+- **Tanulság:** új konténernél a DNS-t mindig kézzel adom meg. A host egy VPN klienssel olyan beállítást is „továbbadhat”, ami csak a hoston értelmes.
+
+## 8. Visszapattanó levelekről jött riasztás
+
+- **Mi történt:** az ntfy-on rendszeresen „unknown user” hibáról szóló értesítések jöttek.
+- **Ok:** a Proxmox alapértelmezett értesítési szabálya e-mailt is küldött a root felhasználó címére, ami egy nem létező helyi címre mutatott. A levél visszapattant, és a visszapattanásról szóló üzenet is továbbjutott az ntfy-ra.
+- **Megoldás:** az értesítési szabály csak az ntfy célra küld, a hibás e-mail cím törölve. A rootnak szóló rendszerlevelek továbbra is ntfy-ra kerülnek.
+- **Tanulság:** egy riasztási csatornának zajmentesnek kell lennie, különben a valódi riasztás is elvész benne.

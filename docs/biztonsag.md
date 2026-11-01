@@ -16,7 +16,10 @@ A cél: a szolgáltatások elérhetők legyenek otthonon kívülről, de a táma
    - a privilegizált konténereket unprivileged módra állítottam át, és töröltem a teljes hozzáférést adó `lxc.*` sorokat,
    - a kezdőlap widgetjei egy csak olvasási jogú (`PVEAuditor`) Proxmox API tokent használnak,
    - a webes fájlkezelőben a parancsfuttatás ki van kapcsolva, és a gyökérkönyvtára csak a szükséges mappákat látja.
-7. **Titkok kezelése:** jelszavak és tokenek `.env` fájlokban (600), sosem a konfigurációban vagy a repóban.
+7. **SSH kívülről:** a host SSH-ja is a tunnelen át érhető el, Cloudflare Access mögött. A tunnel felől csak kulcsos belépés megy, jelszó csak a helyi hálózatról (`Match Address`). Lásd: [runbooks/ssh-cloudflare-access.md](runbooks/ssh-cloudflare-access.md)
+8. **Titkok kezelése:** jelszavak és tokenek `.env` fájlokban (600), sosem a konfigurációban vagy a repóban. A tunnel tokenje korábban a systemd unit fájlban volt (bárki láthatta, aki `systemctl cat`-et futtat); átkerült egy `EnvironmentFile`-ba.
+9. **Webszerver:** a nyilvános landing oldal nginx-e `server_tokens off`, `X-Content-Type-Options`, `X-Frame-Options DENY`, `Referrer-Policy` és szigorú `Content-Security-Policy` fejlécekkel fut.
+10. **Jelszókezelő:** külön döntési leírás: [vaultwarden.md](vaultwarden.md)
 
 ## Privilegizált → unprivileged átállítás
 

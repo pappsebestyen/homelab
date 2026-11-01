@@ -24,12 +24,15 @@ flowchart LR
             JF[Jellyfin]
             IM[Immich]
             JS[Jellyseerr]
+            VW[Vaultwarden]
+            WEB[Landing oldal<br/>nginx]
         end
         subgraph ADM[Admin felületek, Access mögött]
             PX[Proxmox UI]
             ARR[Sonarr / Radarr / Prowlarr]
             FB[Filebrowser]
             HP[Homepage]
+            SSH[SSH a hostra<br/>csak kulccsal]
         end
         subgraph LAN[Csak LAN]
             HA[Home Assistant]
@@ -54,6 +57,8 @@ Minden szolgáltatás külön LXC konténerben fut (VM nincs), a legtöbb unpriv
 | Immich | családi fotókönyvtár | Docker Compose | nyilvános, WAF |
 | Jellyfin | médiaszerver | natív (apt) | nyilvános, WAF |
 | Jellyseerr | médiakérések | Docker | nyilvános, WAF |
+| Vaultwarden | saját jelszókezelő szerver (Bitwarden-kompatibilis) | Docker Compose | nyilvános, WAF, admin felület tiltva |
+| Landing oldal | statikus bemutatkozó oldal a gyökérdomainen | natív nginx, biztonsági fejlécekkel | nyilvános |
 | Sonarr, Radarr, Prowlarr | médiakönyvtár-automatizálás | natív | Cloudflare Access |
 | Filebrowser | webes fájlkezelő | natív, systemd | Cloudflare Access |
 | Homepage | kezdőlap élő widgetekkel | Docker | Cloudflare Access |
@@ -72,6 +77,7 @@ Részletek: [docs/architektura.md](docs/architektura.md)
 
 - Nincs port forward a routeren, UPnP kikapcsolva. Minden külső forgalom a Cloudflare Tunnelen jön.
 - Admin felületek Cloudflare Access (Zero Trust) mögött, egyszer használatos e-mail kóddal.
+- SSH kívülről is a tunnelen és az Accessen át, ott csak kulccsal lehet belépni.
 - Nyilvános szolgáltatások: WAF geo-szabály és rate limit a bejelentkezési végpontokon.
 - Proxmox tűzfal default-deny, TOTP kétlépcsős belépés.
 - Privilegizált konténerek átállítva unprivileged módra.
@@ -91,11 +97,13 @@ Részletek: [docs/mentes-monitorozas.md](docs/mentes-monitorozas.md)
 - [Proxmox VE 8 → 9 frissítés](docs/runbooks/pve8-9-frissites.md)
 - [Cloudflare Access az admin felületek elé](docs/runbooks/cloudflare-access.md)
 - [Cloudflare WAF szabályok](docs/runbooks/cloudflare-waf.md)
+- [SSH kívülről, nyitott port nélkül](docs/runbooks/ssh-cloudflare-access.md)
+- [Vaultwarden: döntés és védelem](docs/vaultwarden.md)
 - [Postmortemek: mi romlott el és mit tanultam belőle](docs/postmortemek.md)
 
 ## Tervek
 
-- [ ] Gépen kívüli (off-site) mentés, a 3-2-1 szabály szerint, és dokumentált visszaállítási próba
+- [ ] Gépen kívüli (off-site) mentés minden konténerre (a jelszótárolónál már megvan), és dokumentált visszaállítási próba
 - [ ] Konfiguráció kódként: Docker Compose fájlok a repóban, Ansible az alapbeállításokhoz, Terraform/OpenTofu a konténerekhez
 - [ ] Prometheus + Grafana metrikák
 - [ ] A rendszerdisk cseréje SSD-re, RAID1-ben

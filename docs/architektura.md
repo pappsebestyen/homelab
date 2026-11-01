@@ -34,8 +34,9 @@ A nagy adatkönyvtárak bind mounttal kerülnek be a konténerekbe, így a kont�
 ## Hálózat
 
 - Egy LAN alhálózat, a szolgáltatások fix IP-vel.
-- **Külső elérés:** Cloudflare Tunnel egy külön konténerből. A tunnel közvetlenül a szolgáltatásokra mutat, reverse proxy nincs közben (egy korábban telepített, de nem használt Nginx Proxy Managert megszüntettem).
-- **Távoli adminisztráció:** Tailscale a hoston, illetve Cloudflare Access.
+- **Külső elérés:** Cloudflare Tunnel egy külön konténerből. A tunnel közvetlenül a szolgáltatásokra mutat (a gyökérdomainen egy statikus nginx landing oldal fut), reverse proxy nincs közben (egy korábban telepített, de nem használt Nginx Proxy Managert megszüntettem).
+- **Távoli adminisztráció:** a webes felület és az SSH is a tunnelen át, Cloudflare Access mögött; tartalékként Tailscale a hoston. A csak LAN-on elérhető felületekhez (pl. Uptime Kuma) SSH port forward: `ssh -L 3001:<belső cím>:3001 proxmox`.
+- **Új konténer DNS-e:** mindig kézzel megadva (`--nameserver`), különben a hoston futó Tailscale DNS-ét örökli (lásd [postmortemek](postmortemek.md), 7. pont).
 - A routeren nincs port forward, és az UPnP ki van kapcsolva.
 
 ## Docker Compose stackek
